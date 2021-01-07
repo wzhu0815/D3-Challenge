@@ -120,6 +120,19 @@ function renderCirclesY(circlesGroup, newYScale, chosenYAxis) {
 
   return circlesGroup;
 }
+// *****title change
+function renderTitle(titleGroup, stateData, chosenXAxis, chosenYAxis) {
+  chosenDataX = stateData.map((d) => d[chosenXAxis]);
+  chosenDataY = stateData.map((d) => d[chosenYAxis]);
+  corr = ss.sampleCorrelation(chosenDataX, chosenDataY).toFixed(2);
+  titleGroup.html("");
+  titleGroup
+    .transition()
+    .duration(500)
+    .text(`Correlation between "${chosenXAxis}" and "${chosenYAxis}": ${corr}`);
+
+  return titleGroup;
+}
 
 var xList = ["poverty", "age", "income"];
 var yList = ["healthcare", "smokes", "obesity"];
@@ -159,6 +172,24 @@ d3.csv("assets/data/data.csv").then(function (stateData, err) {
 
   // append y axis
   yAxis = chartGroup.append("g").call(leftAxis);
+
+  // ************************Title groups******
+  var chosenDataX = stateData.map((d) => d[chosenXAxis]);
+  var chosenDataY = stateData.map((d) => d[chosenYAxis]);
+  // correlation : https://simplestatistics.org/docs/#samplecorrelation
+  var corr = ss.sampleCorrelation(chosenDataX, chosenDataY).toFixed(2);
+  var titleG = chartGroup
+    .append("g")
+    .attr("transform", `translate(${width / 2},0 )`);
+  var titleGroup = titleG
+    .append("text")
+    .attr("x", 0)
+    .attr("y", 1)
+    .classed("aText", true)
+    .text(`Correlation between "${chosenXAxis}" and "${chosenYAxis}": ${corr}`);
+
+  // ************************
+
   // append initial circles
   var circlesGroup = chartGroup
     .selectAll("circle")
@@ -245,18 +276,19 @@ d3.csv("assets/data/data.csv").then(function (stateData, err) {
     .text("Obesity (%)");
   var xLabels = [provertyLabel, ageLabel, incomeLabel];
   var yLabels = [healthLabel, smokeLabel, obeseLabel];
-
-  var chosenDataX = stateData.map((d) => d[chosenXAxis]);
-  console.log(chosenDataX);
-  var chosenDataY = stateData.map((d) => d[chosenYAxis]);
-  console.log(chosenDataY);
-
+  // the title
+  // corrTitle(stateData, chosenXAxis, chosenYAxis);
+  // var col = ss.sampleCorrelation(chosenDataX, chosenDataY);
+  // console.log(col);
   // x axis labels event listener
   labelsGroupX.selectAll("text").on("click", function () {
     // get value of selection
     var valueX = d3.select(this).attr("value");
     if (valueX !== chosenXAxis) {
       chosenXAxis = valueX;
+      // **************title****
+      titleGroup = renderTitle(titleGroup, stateData, chosenXAxis, chosenYAxis);
+      // **************
       xLinearScale = xScale(stateData, chosenXAxis);
       xAxis = renderX(xLinearScale, xAxis);
       circlesGroup = renderCirclesX(circlesGroup, xLinearScale, chosenXAxis);
@@ -282,6 +314,9 @@ d3.csv("assets/data/data.csv").then(function (stateData, err) {
     var valueY = d3.select(this).attr("value");
     if (valueY !== chosenYAxis) {
       chosenYAxis = valueY;
+      // **************title****
+      titleGroup = renderTitle(titleGroup, stateData, chosenXAxis, chosenYAxis);
+      // **************
       yLinearScale = yScale(stateData, chosenYAxis);
       yAxis = renderY(yLinearScale, yAxis);
       circlesGroup = renderCirclesY(circlesGroup, yLinearScale, chosenYAxis);
@@ -300,8 +335,8 @@ d3.csv("assets/data/data.csv").then(function (stateData, err) {
       } else {
       }
     }
-    var chosenDataY = stateData.map((d) => d[chosenYAxis]);
-    console.log(chosenDataY);
+    // var chosenDataY = stateData.map((d) => d[chosenYAxis]);
+    // // console.log(chosenDataY);
   });
 
   // **********************

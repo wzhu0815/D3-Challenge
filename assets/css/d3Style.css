@@ -1,9 +1,13 @@
 .aText {
   font-family: sans-serif;
-  font-size: 16px;
+  font-size: 20px;
   text-anchor: middle;
+  font-weight: bold;
 }
-
+p {
+  color: blue;
+  font-size: 20px;
+}
 .active {
   font-weight: bold;
   fill: #000;
